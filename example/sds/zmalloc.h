@@ -13,5 +13,6 @@
 
 void *zmalloc(size_t size);
 void zfree(void *ptr);
+void *zrealloc(void *ptr, size_t size);
 #define zmalloc_usable(p) zmalloc_size(p)
 #endif /* __ZMALLOC_H */

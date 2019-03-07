@@ -42,3 +42,17 @@ void zfree(void *ptr) {
     update_zmalloc_stat_free(zmalloc_size(ptr));
     free(ptr);
 }
+//重新申请内存
+void *zrealloc(void *ptr, size_t size){
+    size_t oldsize;
+    void *newptr;
+
+    if (ptr == NULL) return zmalloc(size);
+    oldsize = zmalloc_size(ptr);
+    newptr = realloc(ptr,size);
+    if (!newptr) zmalloc_oom_handler(size);
+
+    update_zmalloc_stat_free(oldsize);
+    update_zmalloc_stat_alloc(zmalloc_size(newptr));
+    return newptr;
+}

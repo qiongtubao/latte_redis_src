@@ -26,7 +26,11 @@ TEST(testCase, test1) {
     ASSERT_STREQ("fo", x);
 }
 
-
+TEST(TestCase, test2) {
+    sds x = sdsnew("foo");
+    x = sdscat(x, "cat");
+    ASSERT_STREQ("foocat", x);
+}
 int main(int argc, char * argv[]) {
     std::cout << "Hello, World!\n";
     testing::InitGoogleTest(&argc, argv);
