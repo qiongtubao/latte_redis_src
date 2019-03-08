@@ -52,12 +52,45 @@ struct __attribute__ ((__packed__)) sdshdr64 {
 #define s_malloc zmalloc
 #define s_free zfree
 #define s_realloc zrealloc
+//创建字符串
 sds sdsnew(const void *init);
+//创建字符串 并设置长度
 sds sdsnewlen(const void *init, size_t initlen);
+//追加字符串
 sds sdscat(sds s, const char *t);
+sds sdscatsds(sds s, const sds t);
+//根据长度合并字符串 
 sds sdscatlen(sds s, const char *t, size_t len);
+//创建空的sds
+sds sdsempty(void);
 sds sdsMakeRoomFor(sds s, size_t addlen);
+sds sdscpy(sds s, const char* t);
+sds sdscpylen(sds s, const char* t, size_t len);
+sds sdscatfmt(sds s, char const *fmt, ...);
+//转换int为sds
+int sdsll2str(char *s, long long value);
+//转换uint为sds
+int sdsull2str(char *s, unsigned long long v);
+//释放
+void sdsfree(sds s);
+//去重
+sds sdstrim(sds s, const char *cset);
+//复制
+sds sdsdup(const sds s);
+//截取
+void sdsrange(sds s, ssize_t start, ssize_t end);
+//对比sds
+int sdscmp(const sds s1, const sds s2);
+//转义
+sds sdscatrepr(sds s, const char *p, size_t len);
+//大写
+void sdstoupper(sds s);
+//小写
+void sdstolower(sds s);
+//字符串join
+sds sdsjoin(char **argv, int argc, char *sep);
 
+//获取sds 长度
 static inline size_t sdslen(const sds s) {
     unsigned char flags = s[-1];
     switch(flags&SDS_TYPE_MASK) {
@@ -97,6 +130,22 @@ static inline void sdssetlen(sds s, size_t newlen) {
             SDS_HDR(64,s)->len = newlen;
             break;
     }
+}
+static inline size_t sdsalloc(const sds s) {
+    unsigned char flags = s[-1];
+    switch(flags&SDS_TYPE_MASK) {
+        case SDS_TYPE_5:
+            return SDS_TYPE_5_LEN(flags);
+        case SDS_TYPE_8:
+            return SDS_HDR(8,s)->alloc;
+        case SDS_TYPE_16:
+            return SDS_HDR(16,s)->alloc;
+        case SDS_TYPE_32:
+            return SDS_HDR(32,s)->alloc;
+        case SDS_TYPE_64:
+            return SDS_HDR(64,s)->alloc;
+    }
+    return 0;
 }
 //设置使用长度
 static inline void sdssetalloc(sds s, size_t newlen) {
@@ -145,4 +194,36 @@ static inline size_t sdsavail(const sds s) {
     }
     return 0;
 }
+
+static inline void sdsinclen(sds s, size_t inc) {
+    unsigned char flags = s[-1];
+    switch(flags&SDS_TYPE_MASK) {
+        case SDS_TYPE_5:
+            {
+                unsigned char *fp = ((unsigned char*)s)-1;
+                unsigned char newlen = SDS_TYPE_5_LEN(flags)+inc;
+                *fp = SDS_TYPE_5 | (newlen << SDS_TYPE_BITS);
+            }
+            break;
+        case SDS_TYPE_8:
+            SDS_HDR(8,s)->len += inc;
+            break;
+        case SDS_TYPE_16:
+            SDS_HDR(16,s)->len += inc;
+            break;
+        case SDS_TYPE_32:
+            SDS_HDR(32,s)->len += inc;
+            break;
+        case SDS_TYPE_64:
+            SDS_HDR(64,s)->len += inc;
+            break;
+    }
+}
+sds sdscatvprintf(sds s, const char *fmt, va_list ap);
+#ifdef __GNUC__
+sds sdscatprintf(sds s, const char *fmt, ...)
+    __attribute__((format(printf, 2, 3)));
+#else
+sds sdscatprintf(sds s, const char *fmt, ...);
+#endif
 #endif
