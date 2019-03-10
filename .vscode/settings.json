@@ -47,6 +47,7 @@
         "__locale": "c",
         "zmalloc.h": "c",
         "ctype.h": "c",
-        "assert.h": "c"
+        "assert.h": "c",
+        "adlist.h": "c"
     }
 }
