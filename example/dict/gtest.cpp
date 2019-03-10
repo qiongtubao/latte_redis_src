@@ -47,6 +47,7 @@ TEST(testCase, test0)
     int retval = dictAdd(dict,sdsfromlonglong(1),((void*)1) );
     ASSERT_EQ(retval, DICT_OK);
     ASSERT_TRUE(dictSize(dict) ==  1);
+    zfree(dict);
 }
 
 TEST(testCase, test1)
@@ -54,13 +55,25 @@ TEST(testCase, test1)
     dict *dict = dictCreate(&BenchmarkDictType,NULL);
     int retval = dictAdd(dict,sdsfromlonglong(1),((void*)1) );
     // ASSERT_EQ(retval, DICT_OK);
-    
     dictEntry* d =  dictFind(dict, sdsfromlonglong(1));
     ASSERT_FALSE(d == NULL);
     ASSERT_EQ(dictDelete(dict, sdsfromlonglong(1)), DICT_OK);
     ASSERT_TRUE(dictSize(dict) ==  0);
+    zfree(dict);
 }
 
+
+TEST(testCase, test1)
+{
+    dict *dict = dictCreate(&BenchmarkDictType,NULL);
+    int retval = dictAdd(dict,sdsfromlonglong(1),((void*)1) );
+    // ASSERT_EQ(retval, DICT_OK);
+    dictEntry* d =  dictFind(dict, sdsfromlonglong(1));
+    ASSERT_FALSE(d == NULL);
+    ASSERT_EQ(dictDelete(dict, sdsfromlonglong(1)), DICT_OK);
+    ASSERT_TRUE(dictSize(dict) ==  0);
+    zfree(dict);
+}
 
 int main(int argc, char * argv[]) {
     std::cout << "Hello, World!\n";
