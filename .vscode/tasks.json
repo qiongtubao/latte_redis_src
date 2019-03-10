@@ -1,0 +1,24 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build sds",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-g",
+                "example/sds/main.c",
+                "example/sds/sds.c",
+                "example/sds/zmalloc.c",
+                "-o",
+                "sds"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
