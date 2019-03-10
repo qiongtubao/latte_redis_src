@@ -54,6 +54,8 @@ dict *dictCreate(dictType *type,
 //字典添加key value
 int dictAdd(dict *d, void *key, void *val);
 dictEntry *dictFind(dict *d, const void *key);
+//删除字典里key
+int dictDelete(dict *ht, const void *key);
 uint64_t siphash(const uint8_t *in, const size_t inlen, const uint8_t *k);
 uint64_t siphash_nocase(const uint8_t *in, const size_t inlen, const uint8_t *k);
 uint64_t dictGenHashFunction(const void *key, int len);
@@ -82,6 +84,14 @@ uint64_t dictGenHashFunction(const void *key, int len);
     else \
         (entry)->key = (_key_); \
 } while(0)
+
+#define dictFreeKey(d, entry) \
+    if ((d)->type->keyDestructor) \
+        (d)->type->keyDestructor((d)->privdata, (entry)->key)
+        
+#define dictFreeVal(d, entry) \
+    if ((d)->type->valDestructor) \
+        (d)->type->valDestructor((d)->privdata, (entry)->v.val)
 
 
 void _serverAssert(const char *estr, const char *file, int line);
