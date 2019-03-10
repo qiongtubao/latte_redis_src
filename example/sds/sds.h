@@ -220,6 +220,8 @@ static inline void sdsinclen(sds s, size_t inc) {
     }
 }
 sds sdscatvprintf(sds s, const char *fmt, va_list ap);
+//long long转sds
+sds sdsfromlonglong(long long value);
 #ifdef __GNUC__
 sds sdscatprintf(sds s, const char *fmt, ...)
     __attribute__((format(printf, 2, 3)));

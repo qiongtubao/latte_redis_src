@@ -12,6 +12,15 @@
  *   < 256  SDS_TYPE_8  
  *   < 65536 SDS_TYPE_16
  *   < 4294967296  SDS_TYPE_32
+ * 
+ * 
+ * 
+ *   1. 在函数sdsnewlen中，根据是否需要初始化使用zmalloc和zcalloc两个不同函数。
+ *   2. 计算字符串长度的时候，直接使用函数sdslen，不需要调用strlen。
+ *   3. 需要扩展free的空间时， 需要调用函数sdsMakeRoomFor， 该函数空间分配策略比较有意思， 如果free>=addlen,直接返回。 否则判断free＋addlen是否小于SDS_MAX_PREALLOC这个宏， 如果小于，那么这次就分配2*（free＋addlen）的空间， 这样每次多分配一陪的空间； 否则就分配free+addlen+SDS_MAX_PREALLOC的空间。 这样可以控制最大多分配多少的空间， 以至于不要浪费太多空间。例如： sds old＝sdsnew("test one"); sds new=sdscat(old,"test"); 此时有12的空余空间， 如果再次调用``sdscat(new,”test”)``, 那么就不需要分配空间。
+ *   4. 在函数sdscatvprintf中， 空间申请是以16，32，64..这样增长的， 无处不透露提高性能。
+ *   5. 在函数sdscmp中， 调用memcmp， 性能要比strcmp好， 而且还是二进制安全的。 
+ *   6. 在函数sdssplitlen中， 默认分配的数组为5， 然后按照2的倍数进行增长， 这样做法，有点浪费空间，但是加快速度，不要每分割出来一个字符串就要申请空间。 比较的时候把seplen为1分出来， 也是加快字符串比较速度的考虑， 大部分时候应该是seplen为1。
  */
 static inline char sdsReqType(size_t string_size) {
     if (string_size < 1<<5)  
@@ -533,4 +542,11 @@ sds sdsjoin(char **argv, int argc, char *sep) {
         if (j != argc-1) join = sdscat(join,sep);
     }
     return join;
+}
+
+sds sdsfromlonglong(long long value) {
+    char buf[SDS_LLSTR_SIZE];
+    int len = sdsll2str(buf,value);
+
+    return sdsnewlen(buf,len);
 }

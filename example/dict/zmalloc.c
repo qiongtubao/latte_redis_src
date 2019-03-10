@@ -56,3 +56,11 @@ void *zrealloc(void *ptr, size_t size){
     update_zmalloc_stat_alloc(zmalloc_size(newptr));
     return newptr;
 }
+
+void *zcalloc(size_t size) {
+    void *ptr = calloc(1, size+PREFIX_SIZE);
+
+    if (!ptr) zmalloc_oom_handler(size);
+    update_zmalloc_stat_alloc(zmalloc_size(ptr));
+    return ptr;
+}
