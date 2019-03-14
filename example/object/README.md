@@ -1,0 +1,1 @@
+需要了解LRU和server对object的影响

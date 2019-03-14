@@ -40,6 +40,7 @@ void *zmalloc(size_t size) {
 void zfree(void *ptr) {
     if (ptr == NULL) return;
     update_zmalloc_stat_free(zmalloc_size(ptr));
+    printf("释放内存 剩余内存: %zu \n", used_memory);
     free(ptr);
 }
 //重新申请内存

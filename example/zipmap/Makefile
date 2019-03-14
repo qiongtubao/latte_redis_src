@@ -1,0 +1,12 @@
+zipmap: gtest.cpp zipmap.c ../include/zmalloc.c
+	gcc -c ../include/zmalloc.c -o zmalloc.o
+	gcc -c  -I/Users/zhouguodong/Documents/latte_learn/latte_redis_src/example/include zipmap.c -o zipmap.o 
+	ar rcv zipmap.a zmalloc.o zipmap.o 
+	g++ -g  gtest.cpp  -I/Users/zhouguodong/Documents/latte_learn/latte_redis_src/example/include ../libs/libgtest_main.a ../libs/libgtest.a  zipmap.a -o zipmap -std=c++11
+clean: 
+	-rm -f *.o
+	-rm -f *.a
+	-rm -f test1
+	-rm -rf zipmap.dSYM
+	-rm -rf test1.dSYM
+	-rm -f zipmap
