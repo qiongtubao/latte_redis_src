@@ -16,7 +16,7 @@ static void _dictRehashStep(dict *d);
 static unsigned long _dictNextPower(unsigned long size);
 static dictEntry *dictGenericDelete(dict *d, const void *key, int nofree);
 
-void _serverAssert(const char *estr, const char *file, int line) {
+void tserverAssert(const char *estr, const char *file, int line){
     fprintf(stderr, "=== ASSERTION FAILED ===");
     fprintf(stderr, "==> %s:%d '%s' is not true",file,line,estr);
     *((char*)-1) = 'x';
@@ -318,4 +318,35 @@ static dictEntry *dictGenericDelete(dict *d, const void *key, int nofree) {
 }
 int dictDelete(dict *ht, const void *key) {
     return dictGenericDelete(ht,key,0) ? DICT_OK : DICT_ERR;
+}
+int _dictClear(dict *d, dictht *ht, void(callback)(void *)) {
+    unsigned long i;
+
+    /* Free all the elements */
+    for (i = 0; i < ht->size && ht->used > 0; i++) {
+        dictEntry *he, *nextHe;
+
+        if (callback && (i & 65535) == 0) callback(d->privdata);
+
+        if ((he = ht->table[i]) == NULL) continue;
+        while(he) {
+            nextHe = he->next;
+            dictFreeKey(d, he);
+            dictFreeVal(d, he);
+            zfree(he);
+            ht->used--;
+            he = nextHe;
+        }
+    }
+    /* Free the table and the allocated cache structure */
+    zfree(ht->table);
+    /* Re-initialize the table */
+    _dictReset(ht);
+    return DICT_OK; /* never fails */
+}
+
+void dictRelease(dict *d) {
+    _dictClear(d,&d->ht[0],NULL);
+    _dictClear(d,&d->ht[1],NULL);
+    zfree(d);
 }

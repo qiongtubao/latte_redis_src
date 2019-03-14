@@ -1,10 +1,13 @@
 #include <stdint.h>
 #include <unistd.h>
+#include "zmalloc.h"
 #ifndef __DICT_H
 #define __DICT_H
 
 #define DICT_OK 0
 #define DICT_ERR 1
+void tserverAssert(const char *estr, const char *file, int line); 
+#define assert(_e) ((_e)?(void)0 : (tserverAssert(#_e,__FILE__,__LINE__),_exit(1)))
 
 /**
  * hash节点
@@ -56,6 +59,7 @@ int dictAdd(dict *d, void *key, void *val);
 dictEntry *dictFind(dict *d, const void *key);
 //删除字典里key
 int dictDelete(dict *ht, const void *key);
+void dictRelease(dict *d);
 uint64_t siphash(const uint8_t *in, const size_t inlen, const uint8_t *k);
 uint64_t siphash_nocase(const uint8_t *in, const size_t inlen, const uint8_t *k);
 uint64_t dictGenHashFunction(const void *key, int len);
@@ -95,7 +99,6 @@ uint64_t dictGenHashFunction(const void *key, int len);
 
 
 void _serverAssert(const char *estr, const char *file, int line);
-#define assert(_e) ((_e)?(void)0 : (_serverAssert(#_e,__FILE__,__LINE__),_exit(1)))
 
 #define DICT_NOTUSED(V) ((void) V)
 

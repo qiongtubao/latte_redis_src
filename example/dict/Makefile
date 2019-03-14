@@ -1,6 +1,6 @@
-dict: gtest.cpp dict.c ../sds/zmalloc.c ../sds/sds.c
-	gcc -c dict.c -o dict.o 
-	gcc -c zmalloc.c -o zmalloc.o
+dict: gtest.cpp dict.c ../include/zmalloc.c ../sds/sds.c
+	gcc -c ../include/zmalloc.c -o zmalloc.o
+	gcc -c -I/Users/zhouguodong/Documents/latte_learn/latte_redis_src/example/include  dict.c -o dict.o 
 	gcc -c ../sds/sds.c -o sds.o
 	gcc -c siphash.c -o siphash.o
 	ar rcv dict.a dict.o zmalloc.o sds.o siphash.o
