@@ -44,35 +44,41 @@ dictType BenchmarkDictType = {
 TEST(testCase, test0)
 {
     dict *dict = dictCreate(&BenchmarkDictType,NULL);
-    int retval = dictAdd(dict,sdsfromlonglong(1),((void*)1) );
+    sds key =sdsfromlonglong(1);
+    int retval = dictAdd(dict,key,((void*)1));
     ASSERT_EQ(retval, DICT_OK);
     ASSERT_TRUE(dictSize(dict) ==  1);
-    zfree(dict);
+    dictRelease(dict);
+    // zfree(key);
 }
 
 TEST(testCase, test1)
 {
     dict *dict = dictCreate(&BenchmarkDictType,NULL);
-    int retval = dictAdd(dict,sdsfromlonglong(1),((void*)1) );
+    sds key = sdsfromlonglong(1);
+    int retval = dictAdd(dict, key, ((void*)1) );
     // ASSERT_EQ(retval, DICT_OK);
-    dictEntry* d =  dictFind(dict, sdsfromlonglong(1));
+    dictEntry* d =  dictFind(dict, key);
     ASSERT_FALSE(d == NULL);
-    ASSERT_EQ(dictDelete(dict, sdsfromlonglong(1)), DICT_OK);
+    ASSERT_EQ(dictDelete(dict, key), DICT_OK);
     ASSERT_TRUE(dictSize(dict) ==  0);
-    zfree(dict);
+    dictRelease(dict);
+    // zfree(key);
 }
 
 
-TEST(testCase, test1)
+TEST(testCase, test2)
 {
     dict *dict = dictCreate(&BenchmarkDictType,NULL);
-    int retval = dictAdd(dict,sdsfromlonglong(1),((void*)1) );
+    sds key = sdsfromlonglong(1);
+    int retval = dictAdd(dict, key,((void*)1));
     // ASSERT_EQ(retval, DICT_OK);
-    dictEntry* d =  dictFind(dict, sdsfromlonglong(1));
+    dictEntry* d =  dictFind(dict, key);
     ASSERT_FALSE(d == NULL);
-    ASSERT_EQ(dictDelete(dict, sdsfromlonglong(1)), DICT_OK);
+    ASSERT_EQ(dictDelete(dict, key), DICT_OK);
     ASSERT_TRUE(dictSize(dict) ==  0);
-    zfree(dict);
+    dictRelease(dict);
+    // zfree(key);
 }
 
 int main(int argc, char * argv[]) {
