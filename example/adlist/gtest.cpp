@@ -10,6 +10,7 @@
 extern "C" {
 #endif
 #include "./adlist.h"
+#include "zmalloc.h"
 #ifdef __cplusplus 
 }
 #endif
@@ -23,13 +24,17 @@ TEST(testCase, test0)
     for(int i = 0; i < 10; i++) {
         listAddNodeHead(list, (void*)i);
     }
-    listIter  *iter = listGetIterator(list, 0);
+    // listIter  *iter = listGetIterator(list, 0);
+    listIter iter;
+    listRewind(list, &iter);
     int size = 0;
     listNode *node;
-    while((node = listNext(iter)) != NULL) {
+    while((node = listNext(&iter)) != NULL) {
         size++;
     }
+    listRelease(list);
     ASSERT_TRUE(size ==  10);
+    
 }
 
 int main(int argc, char * argv[]) {
