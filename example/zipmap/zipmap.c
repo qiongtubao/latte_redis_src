@@ -111,11 +111,16 @@ static unsigned char *zipmapLookupRaw(unsigned char *zm, unsigned char *key, uns
     if(totlen != NULL) *totlen = (unsigned int)(p-zm) + 1;
     return k;
 }
-
+/**
+ * 获得  （key记录 + key)的长度 
+ */ 
 static unsigned int zipmapRawKeyLength(unsigned char *p) {
     unsigned int l = zipmapDecodeLength(p);
     return zipmapEncodeLength(NULL,l) + l;
 }
+/**
+ * 
+ */ 
 static unsigned int zipmapRawEntryLength(unsigned char *p) {
     unsigned int l = zipmapRawKeyLength(p);
     return l + zipmapRawValueLength(p+l);
@@ -144,7 +149,9 @@ static unsigned int zipmapEncodeLength(unsigned char *p, unsigned int len) {
         }
     }
 }
-
+/**
+ *  获得  value + 标记value 长度的 字节数
+ */ 
 static unsigned int zipmapRawValueLength(unsigned char *p) {
     unsigned int l = zipmapDecodeLength(p);
     unsigned int used;
@@ -155,3 +162,71 @@ static unsigned int zipmapRawValueLength(unsigned char *p) {
 }
 
 
+unsigned char *zipmapRewind(unsigned char *zm) {
+    return zm+1;
+}
+
+unsigned char *zipmapNext(unsigned char *zm, unsigned char **key, unsigned int *klen, unsigned char **value, unsigned int *vlen) {
+    if (zm[0] == ZIPMAP_END) return NULL;
+    if (key) {
+        *key = zm;
+        *klen = zipmapDecodeLength(zm);
+        *key += ZIPMAP_LEN_BYTES(*klen);
+    }
+    zm += zipmapRawKeyLength(zm);
+    if (value) {
+        *value = zm+1;
+        *vlen = zipmapDecodeLength(zm);
+        *value += ZIPMAP_LEN_BYTES(*vlen);
+    }
+    zm += zipmapRawValueLength(zm);
+    return zm;
+}
+
+/**
+ *  判断key值是否存在
+ */ 
+int zipmapExists(unsigned char *zm, unsigned char *key, unsigned int klen) {
+    return zipmapLookupRaw(zm,key,klen,NULL) != NULL;
+}
+/**
+ * 删除kv
+ */ 
+unsigned char *zipmapDel(unsigned char *zm, unsigned char *key, unsigned int klen, int *deleted) {
+    unsigned int zmlen, freelen;
+    unsigned char *p = zipmapLookupRaw(zm, key, klen, &zmlen);
+    if(p) {
+        freelen = zipmapRawEntryLength(p);
+        memmove(p, p + freelen, zmlen-((p-zm) + freelen + 1));
+        zm = zipmapResize(zm, zmlen- freelen);
+        if(zm[0] < ZIPMAP_BIGLEN) {
+            zm[0]--;
+        }
+        if(deleted) {
+            *deleted = 1;
+        }
+    }else{
+        if(deleted) {
+            *deleted = 0;
+        }
+    }
+    return zm;
+}
+/**
+ * 查询map长度
+ */ 
+unsigned int zipmapLen(unsigned char *zm) {
+    unsigned int len = 0;
+    if(zm[0] < ZIPMAP_BIGLEN) {
+        len = zm[0];
+    }else{
+        unsigned char *p = zipmapRewind(zm);
+        while((p = zipmapNext(p, NULL, NULL, NULL, NULL)) != NULL) {
+            len++;
+        }
+        if(len < ZIPMAP_BIGLEN) {
+            zm[0] = len;
+        }
+    }
+    return len;
+}

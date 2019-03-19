@@ -60,14 +60,25 @@ TEST(testCase, test1)
     // ASSERT_EQ(retval, DICT_OK);
     dictEntry* d =  dictFind(dict, key);
     ASSERT_FALSE(d == NULL);
+    ASSERT_TRUE(dictGetVal(d) == (void*)1);
     ASSERT_EQ(dictDelete(dict, key), DICT_OK);
     ASSERT_TRUE(dictSize(dict) ==  0);
     dictRelease(dict);
     // zfree(key);
 }
 
+TEST(testCase, test2) {
+    dict *dict = dictCreate(&BenchmarkDictType, NULL);
+    sds key = sdsfromlonglong(1);
+    int retval = dictAdd(dict, key, ((void*)1));
+    dictEntry *d = dictFind(dict, key);
+    dictReplace(dict, key, ((void*)2));
+    ASSERT_TRUE(dictGetVal(d) == (void*)2);
+    dictRelease(dict);
+}
 
-TEST(testCase, test2)
+
+TEST(testCase, test3)
 {
     dict *dict = dictCreate(&BenchmarkDictType,NULL);
     sds key = sdsfromlonglong(1);

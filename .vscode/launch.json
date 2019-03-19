@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(lldb) Launch",
+            "name": "rstring",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/example/dict/dict",
+            "program": "${workspaceFolder}/example/object/string/test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -3,6 +3,22 @@
 #ifndef __OBJECT_H
 #define __OBJECT_H
 
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/wait.h>
+#include <sys/param.h>
+#include <redisutil.h>
+
+#define OBJ_STRING 0    /* String object. */
+#define OBJ_LIST 1      /* List object. */
+#define OBJ_SET 2       /* Set object. */
+#define OBJ_ZSET 3      /* Sorted set object. */
+#define OBJ_HASH 4      /* Hash object. */
+#define OBJ_MODULE 5    /* Module object. */
+#define OBJ_STREAM 6    /* Stream object. */
+
 #define OBJ_ENCODING_RAW 0     /* Raw representation */
 #define OBJ_ENCODING_INT 1     /* Encoded as integer */
 #define OBJ_ENCODING_HT 2      /* Encoded as hash table */
@@ -35,8 +51,15 @@ typedef struct redisObject {  //存放的对象类型
 } robj;
 
 robj *createObject(int type, void *ptr);
-
-
+void incrRefCount(robj *o);
+void decrRefCount(robj *o);
+robj *getDecodedObject(robj *o);
+void freeHashObject(robj *o);
+void freeSetObject(robj *o);
+void freeListObject(robj *o);
+void freeZsetObject(robj *o);
+void freeModuleObject(robj *o);
+void freeStreamObject(robj *o);
 
 
 #endif

@@ -48,6 +48,22 @@
         "zmalloc.h": "c",
         "ctype.h": "c",
         "assert.h": "c",
-        "adlist.h": "c"
+        "adlist.h": "c",
+        "stdint.h": "c",
+        "intset.h": "c",
+        "string.h": "c",
+        "sstream": "cpp",
+        "stdio.h": "c",
+        "ziplist.h": "c",
+        "stdlib.h": "c",
+        "ostream": "cpp",
+        "climits": "c",
+        "redisassert.h": "c",
+        "util.h": "c",
+        "redisutil.h": "c",
+        "random": "c",
+        "future": "c",
+        "dict.h": "c",
+        "mdb.h": "c"
     }
 }
