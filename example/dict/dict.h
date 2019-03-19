@@ -6,6 +6,10 @@
 
 #define DICT_OK 0
 #define DICT_ERR 1
+
+#define dictHashKey(d, key) (d)->type->hashFunction(key)
+#define dictGetKey(he) ((he)->key)
+#define dictGetVal(he) ((he)->v.val)
 void tserverAssert(const char *estr, const char *file, int line); 
 #define assert(_e) ((_e)?(void)0 : (tserverAssert(#_e,__FILE__,__LINE__),_exit(1)))
 
@@ -56,10 +60,20 @@ dict *dictCreate(dictType *type,
 
 //字典添加key value
 int dictAdd(dict *d, void *key, void *val);
+//字典添加一个只有key值的dicEntry
+dictEntry *dictAddRaw(dict *d, void *key, dictEntry **existing);
+//字典查找key
 dictEntry *dictFind(dict *d, const void *key);
 //删除字典里key
 int dictDelete(dict *ht, const void *key);
+//释放字典对象内存
 void dictRelease(dict *d);
+//字典扩展
+int dictExpand(dict *d, unsigned long size);
+//字典替换key，val
+int dictReplace(dict *d, void *key, void *val);
+//如果不存在就添加对象
+dictEntry *dictAddOrFind(dict *d, void *key);
 uint64_t siphash(const uint8_t *in, const size_t inlen, const uint8_t *k);
 uint64_t siphash_nocase(const uint8_t *in, const size_t inlen, const uint8_t *k);
 uint64_t dictGenHashFunction(const void *key, int len);
@@ -69,6 +83,7 @@ uint64_t dictGenHashFunction(const void *key, int len);
 #define dictIsRehashing(d) ((d)->rehashidx != -1)
 //获得字典长度
 #define dictSize(d) ((d)->ht[0].used+(d)->ht[1].used)
+
 //修改或添加字典里的值
 #define dictSetVal(d, entry, _val_) do { \
     if ((d)->type->valDup) \

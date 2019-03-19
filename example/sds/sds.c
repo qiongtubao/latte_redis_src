@@ -65,6 +65,7 @@ sds sdsnewlen(const void *init, size_t initlen) {
     int hdrlen = sdsHdrSize(type);
     unsigned char *fp;
     sh = s_malloc(hdrlen+initlen);
+    
     if (init == SDS_NOINIT) {
         init = NULL;
     } else if (!init) {

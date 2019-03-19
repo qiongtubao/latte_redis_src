@@ -116,7 +116,7 @@ dict *dictCreate(dictType *type,
         void *privDataPtr)
 {
     dict *d = zmalloc(sizeof(*d));
-
+    //初始化
     _dictInit(d,type,privDataPtr);
     return d;
 }
@@ -124,7 +124,7 @@ dict *dictCreate(dictType *type,
 uint64_t dictGenHashFunction(const void *key, int len) {
     return siphash(key,len,dict_hash_function_seed);
 }
-
+//初始化哈希表
 static void _dictReset(dictht *ht)
 {
     ht->table = NULL;
@@ -136,6 +136,7 @@ static void _dictReset(dictht *ht)
 int _dictInit(dict *d, dictType *type,
         void *privDataPtr)
 {
+    //重置2个哈希表
     _dictReset(&d->ht[0]);
     _dictReset(&d->ht[1]);
     d->type = type;
@@ -255,6 +256,7 @@ int dictAdd(dict *d, void *key, void *val) {
    if(!entry) {
        return DICT_ERR;
    }
+   //字典val函数复制时候调用，如果dict中的dictType定义了这个函数指针
    dictSetVal(d, entry, val);
    return DICT_OK;
 }
@@ -349,4 +351,27 @@ void dictRelease(dict *d) {
     _dictClear(d,&d->ht[0],NULL);
     _dictClear(d,&d->ht[1],NULL);
     zfree(d);
+}
+int dictReplace(dict *d, void *key, void *val) {
+    dictEntry *entry, *existing, auxentry;
+
+    /* Try to add the element. If the key
+     * does not exists dictAdd will succeed. */
+    entry = dictAddRaw(d,key,&existing);
+    if (entry) {
+        dictSetVal(d, entry, val);
+        return 1;
+    }
+    auxentry = *existing;
+    dictSetVal(d, existing, val);
+    dictFreeVal(d, &auxentry);
+    return 0;
+}
+/**
+ * 如果不存在就添加对象
+ */ 
+dictEntry *dictAddOrFind(dict *d, void *key) {
+    dictEntry *entry, *existing;
+    entry = dictAddRaw(d,key,&existing);
+    return entry ? entry : existing;
 }
